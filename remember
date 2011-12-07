@@ -1,0 +1,46 @@
+#!/usr/bin/python
+
+import sys
+from time import strftime
+from time import localtime
+import re
+
+SAVE_FILE = "/home/moses/Projects/Current/Remember/.save"
+
+save = sys.argv[1:]
+
+if len(save) == 0:
+    print("You need more arguments than that.")
+    sys.exit(1)
+
+save_str = " ".join(save)
+time_str = strftime("%m/%d/%y %H:%M",localtime())
+
+write_str = str.format("<<~{0}>>~ {1}\n", save_str, time_str)
+
+matcher = re.compile(r"<<~(.*)>>~ (.+)")
+found = False
+
+try:
+    fp = open(SAVE_FILE, "rw")
+
+    for line in fp:
+        matched = matcher.search(line)
+        if matched:
+            string, time = matched.group(1), matched.group(2)
+            if string == save_str:
+                found = True
+                print(time)
+                fp.close()
+                sys.exit()
+
+    fp.close()
+except:
+    pass
+
+if not found:
+    fp = open(SAVE_FILE, "a")
+    fp.write(write_str)
+    fp.close()
+
+    print(str.format("Saved string \"{0}\" at {1}", save_str, time_str))
